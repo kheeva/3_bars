@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import json
 import geopy.distance
 
@@ -42,7 +42,7 @@ def input_coordinate():
         coordinate = input()
         try:
             coordinate = Decimal(coordinate)
-        except Exception:
+        except InvalidOperation:
             print('Wrong format! Correct format is [digits].[digits]')
             print('Try again:')
         else:
