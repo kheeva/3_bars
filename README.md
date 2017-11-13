@@ -1,22 +1,33 @@
-# Ближайшие бары
+# Bar seeker.
+The program determines which are the closest, the biggest, and the lowest bars near you. The program uses mos.ru's collection of bars.
 
-[FIXME. Здесь будет описание проекта]
-
-# Как запустить
-
-Скрипт требует для своей работы установленного интерпретатора Python версии 3.5
-
-Запуск на Linux:
-
-```bash
-
-$ python bars.py # possibly requires call of python3 executive instead of just python
-# FIXME вывести пример ответа скрипта
-
+# How to Install
+You need to download and install python3 if you already haven't: http://python.org .
+Also you need to install geopy module:
+```
+pip install geopy
 ```
 
-Запуск на Windows происходит аналогично.
+# How to use
+Run the script:
+```
+python bars.py
+```
 
-# Цели проекта
+Input your coordinates:
+```
+Input your latitude:
+37.539257
+Input your longitude:
+55.746945
+```
 
-Код создан в учебных целях. В рамках учебного курса по веб-разработке - [DEVMAN.org](https://devman.org)
+Catch your result:
+```
+The closest bar in 0.187 kilometers.
+The biggest bar is "Спорт бар «Красная машина»".
+The lowest bar is "БАР. СОКИ".
+```
+
+# Project Goals
+The code is written for educational purposes. Training course for web-developers - [DEVMAN.org](https://devman.org)
