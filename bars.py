@@ -21,13 +21,13 @@ def load_data(filepath):
 def get_biggest_bar(bars_data):
     max_seats = bars_data[-1][1]
     list_of_biggest_bars = filter(lambda x: x[1] == max_seats, bars_data)
-    return sorted(list_of_biggest_bars, key=lambda x: x[0])[-1][0]
+    return max(list_of_biggest_bars, key=lambda x: x[0])
 
 
 def get_smallest_bar(bars_data):
     min_seats = bars_data[0][1]
     list_of_lowest_bars = filter(lambda x: x[1] == min_seats, bars_data)
-    return sorted(list_of_lowest_bars, key=lambda x: x[0])[0][0]
+    return min(list_of_lowest_bars, key=lambda x: x[0])
 
 
 def get_closest_bar(bars_data, longitude, latitude):
