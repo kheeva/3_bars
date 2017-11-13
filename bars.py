@@ -1,7 +1,6 @@
 from decimal import Decimal
 import json
 import geopy.distance
-from decimal import Decimal
 
 
 filepath = 'bars.json'
