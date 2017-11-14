@@ -3,12 +3,12 @@ import json
 import geopy.distance
 
 
-filepath = 'bars.json'
+json_file_path = 'bars.json'
 
 
-def load_data(filepath):
+def load_data(file_path):
     try:
-        with open(filepath, 'r', encoding='utf8') as json_file:
+        with open(file_path, 'r', encoding='utf8') as json_file:
             json_data = json.load(json_file)
     except FileNotFoundError as error:
         print(error)
@@ -18,6 +18,7 @@ def load_data(filepath):
         return json_data
     return {}
 
+
 # I wanted to do all of parsing job in one cycle.
 def parse_json_data(json_data, user_latitude, user_longitude):
     bars_data = []
@@ -25,7 +26,8 @@ def parse_json_data(json_data, user_latitude, user_longitude):
         bars_data.append([
             json_bar['properties']['Attributes']['Name'],
             json_bar['properties']['Attributes']['SeatsCount'],
-            round(geopy.distance.vincenty((user_latitude, user_longitude), json_bar['geometry']['coordinates']).km, 3),])
+            round(geopy.distance.vincenty((user_latitude, user_longitude),
+                                          json_bar['geometry']['coordinates']).km, 3), ])
     return sorted(bars_data, key=lambda x: x[1])
 
 
@@ -61,7 +63,7 @@ def input_coordinate():
 
 
 def main():
-    bars_json_data = load_data(filepath)
+    bars_json_data = load_data(json_file_path)
     if not bars_json_data:
         print('No data!')
         exit(1)
