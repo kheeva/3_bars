@@ -7,34 +7,46 @@ filepath = 'bars.json'
 
 
 def load_data(filepath):
-    bars_data = list()
-    with open(filepath, 'r', encoding='utf8') as json_file:
-        json_data = json.load(json_file)
+    try:
+        with open(filepath, 'r', encoding='utf8') as json_file:
+            json_data = json.load(json_file)
+    except FileNotFoundError:
+        print("Can not find bars.json. Place it into bars.py's directory.")
+        exit(1)
+    except json.JSONDecodeError:
+        print('bars.json is not a json file!')
+        exit(1)
+    else:
+        return json_data
+
+
+# I wanted to do all of parsing job in one cycle.
+def parse_json_data(json_data, user_latitude, user_longitude):
+    bars_data = []
     for json_bar in json_data['features']:
         bars_data.append([
-            json_bar.get('properties')['Attributes']['Name'],
-            json_bar.get('properties')['Attributes']['SeatsCount'],
-            json_bar.get('geometry')['coordinates'],])
+            json_bar['properties']['Attributes']['Name'],
+            json_bar['properties']['Attributes']['SeatsCount'],
+            round(geopy.distance.vincenty((user_latitude, user_longitude), json_bar['geometry']['coordinates']).km, 3),])
     return sorted(bars_data, key=lambda x: x[1])
 
 
-def get_biggest_bar(bars_data):
-    max_seats = bars_data[-1][1]
-    list_of_biggest_bars = filter(lambda x: x[1] == max_seats, bars_data)
+def get_biggest_bar(parsed_bars_data):
+    max_seats = parsed_bars_data[-1][1]
+    # seeking for the longest name of bars with max Seatscount
+    list_of_biggest_bars = filter(lambda x: x[1] == max_seats, parsed_bars_data)
     return max(list_of_biggest_bars, key=lambda x: x[0])
 
 
-def get_smallest_bar(bars_data):
-    min_seats = bars_data[0][1]
-    list_of_lowest_bars = filter(lambda x: x[1] == min_seats, bars_data)
+def get_smallest_bar(parsed_bars_data):
+    min_seats = parsed_bars_data[0][1]
+    # seeking for the lowest name of bars with min Seatscount
+    list_of_lowest_bars = filter(lambda x: x[1] == min_seats, parsed_bars_data)
     return min(list_of_lowest_bars, key=lambda x: x[0])
 
 
-def get_closest_bar(bars_data, longitude, latitude):
-    bars_distances = list()
-    for bar in bars_data:
-        bars_distances.append(geopy.distance.vincenty((latitude, longitude), bar[2]).km)
-    return Decimal(min(bars_distances)).quantize(Decimal('.001'))
+def get_closest_bar(parsed_bars_data):
+    return min(parsed_bars_data, key=lambda x: x[2])
 
 
 def input_coordinate():
@@ -51,16 +63,21 @@ def input_coordinate():
 
 
 def main():
-    bars_data = load_data(filepath)
+    bars_json_data = load_data(filepath)
 
     print('Input your latitude:')
     user_latitude = input_coordinate()
     print('Input your longitude:')
     user_longitude = input_coordinate()
 
-    print('The closest bar in ', get_closest_bar(bars_data, user_longitude, user_latitude), ' kilometers.', sep='')
-    print('The biggest bar is ', '"', get_biggest_bar(bars_data), '".', sep='')
-    print('The lowest bar is ', '"', get_smallest_bar(bars_data), '".', sep='')
+    parsed_bars_data = parse_json_data(bars_json_data, user_latitude, user_longitude)
+    closest_bar = get_closest_bar(parsed_bars_data)
+    biggest_bar = get_biggest_bar(parsed_bars_data)
+    smallest_bar = get_smallest_bar(parsed_bars_data)
+
+    print('The closest bar is ', closest_bar[0], '. It is in ', closest_bar[2], ' kilometers.', sep='')
+    print('The biggest bar is ', '"', biggest_bar[0], '. It has ', biggest_bar[1], ' seats".', sep='')
+    print('The smallest bar is ', '"', smallest_bar[0], '. It has ', smallest_bar[1], ' seats".', sep='')
 
 
 if __name__ == '__main__':
