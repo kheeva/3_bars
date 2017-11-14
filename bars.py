@@ -10,15 +10,13 @@ def load_data(filepath):
     try:
         with open(filepath, 'r', encoding='utf8') as json_file:
             json_data = json.load(json_file)
-    except FileNotFoundError:
-        print("Can not find bars.json. Place it into bars.py's directory.")
-        exit(1)
-    except json.JSONDecodeError:
-        print('bars.json is not a json file!')
-        exit(1)
+    except FileNotFoundError as error:
+        print(error)
+    except json.JSONDecodeError as error:
+        print(error)
     else:
         return json_data
-
+    return {}
 
 # I wanted to do all of parsing job in one cycle.
 def parse_json_data(json_data, user_latitude, user_longitude):
@@ -64,6 +62,9 @@ def input_coordinate():
 
 def main():
     bars_json_data = load_data(filepath)
+    if not bars_json_data:
+        print('No data!')
+        exit(1)
 
     print('Input your latitude:')
     user_latitude = input_coordinate()
