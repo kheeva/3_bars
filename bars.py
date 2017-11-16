@@ -1,52 +1,46 @@
+import sys
 from decimal import Decimal, InvalidOperation
 import json
 import geopy.distance
 
 
-json_file_path = 'bars.json'
-
-
 def load_data(file_path):
+    error_msg = ''
     try:
         with open(file_path, 'r', encoding='utf8') as json_file:
             json_data = json.load(json_file)
     except FileNotFoundError as error:
-        print(error)
+        error_msg = error
     except json.JSONDecodeError as error:
-        print(error)
+        error_msg = error
     else:
-        return json_data
-    return {}
+        return json_data, error_msg
+    return {}, error_msg
 
 
-# I wanted to do all of parsing job in one cycle.
-def parse_json_data(json_data, user_latitude, user_longitude):
-    bars_data = []
-    for json_bar in json_data['features']:
-        bars_data.append([
-            json_bar['properties']['Attributes']['Name'],
-            json_bar['properties']['Attributes']['SeatsCount'],
-            round(geopy.distance.vincenty((user_latitude, user_longitude),
-                                          json_bar['geometry']['coordinates']).km, 3), ])
-    return sorted(bars_data, key=lambda x: x[1])
+def get_biggest_bar(bars):
+    return max(bars['features'],
+               key=lambda x: x['properties']['Attributes']['SeatsCount'])
 
 
-def get_biggest_bar(parsed_bars_data):
-    max_seats = parsed_bars_data[-1][1]
-    # seeking for the longest name of bars with max Seatscount
-    list_of_biggest_bars = filter(lambda x: x[1] == max_seats, parsed_bars_data)
-    return max(list_of_biggest_bars, key=lambda x: x[0])
+def get_smallest_bar(bars):
+    return min(bars['features'],
+               key=lambda x: x['properties']['Attributes']['SeatsCount'])
 
 
-def get_smallest_bar(parsed_bars_data):
-    min_seats = parsed_bars_data[0][1]
-    # seeking for the lowest name of bars with min Seatscount
-    list_of_lowest_bars = filter(lambda x: x[1] == min_seats, parsed_bars_data)
-    return min(list_of_lowest_bars, key=lambda x: x[0])
+def get_closest_bar(bars, latitude, longitude):
+    closest_bar = {}
+    min_distance_to_bar = 20000
 
+    for bar in bars['features']:
+        distance_to_bar = round(geopy.distance.vincenty(
+                                    (latitude, longitude),
+                                    bar['geometry']['coordinates']).km, 3)
+        if distance_to_bar <= min_distance_to_bar:
+            min_distance_to_bar = distance_to_bar
+            closest_bar = bar
 
-def get_closest_bar(parsed_bars_data):
-    return min(parsed_bars_data, key=lambda x: x[2])
+    return closest_bar, min_distance_to_bar
 
 
 def input_coordinate():
@@ -63,24 +57,38 @@ def input_coordinate():
 
 
 def main():
-    bars_json_data = load_data(json_file_path)
-    if not bars_json_data:
-        print('No data!')
-        exit(1)
+    if len(sys.argv) != 2:
+        exit("Usage: python lang_frequency.py path_to_file.")
+
+    loaded_bars, load_error_msg = load_data(sys.argv[1])
+    if not loaded_bars and load_error_msg:
+        exit(load_error_msg)
 
     print('Input your latitude:')
     user_latitude = input_coordinate()
     print('Input your longitude:')
     user_longitude = input_coordinate()
 
-    parsed_bars_data = parse_json_data(bars_json_data, user_latitude, user_longitude)
-    closest_bar = get_closest_bar(parsed_bars_data)
-    biggest_bar = get_biggest_bar(parsed_bars_data)
-    smallest_bar = get_smallest_bar(parsed_bars_data)
+    closest_bar, min_distance_to_bar = get_closest_bar(loaded_bars,
+                                                       user_latitude,
+                                                       user_longitude)
+    biggest_bar = get_biggest_bar(loaded_bars)
+    smallest_bar = get_smallest_bar(loaded_bars)
 
-    print('The closest bar is ', closest_bar[0], '. It is in ', closest_bar[2], ' kilometers.', sep='')
-    print('The biggest bar is ', '"', biggest_bar[0], '. It has ', biggest_bar[1], ' seats".', sep='')
-    print('The smallest bar is ', '"', smallest_bar[0], '. It has ', smallest_bar[1], ' seats".', sep='')
+    print('The closest bar is ',
+          closest_bar['properties']['Attributes']['Name'],
+          '. It is in ', min_distance_to_bar,
+          ' kilometers.', sep='')
+
+    print('The biggest bar is "',
+          biggest_bar['properties']['Attributes']['Name'],
+          '". It has ', biggest_bar['properties']['Attributes']['SeatsCount'],
+          ' seats.', sep='')
+
+    print('The smallest bar is "',
+          smallest_bar['properties']['Attributes']['Name'],
+          '". It has ', smallest_bar['properties']['Attributes']['SeatsCount'],
+          ' seats.', sep='')
 
 
 if __name__ == '__main__':
