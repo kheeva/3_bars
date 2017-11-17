@@ -1,5 +1,4 @@
 import sys
-from decimal import Decimal, InvalidOperation
 import json
 import geopy.distance
 
@@ -21,23 +20,30 @@ def get_smallest_bar(bars):
 
 
 def get_closest_bar(bars, latitude, longitude):
-    return min(bars['features'], key=lambda x: Decimal(geopy.distance.vincenty(
-                                (latitude, longitude),
-                                x['geometry']['coordinates']).km))
+    return min(bars['features'], key=lambda x: round(geopy.distance.vincenty(
+        (latitude, longitude), x['geometry']['coordinates']).km, 3))
 
 
 def is_valid_coordinate(coordinate):
     try:
-        Decimal(coordinate)
-    except InvalidOperation:
+        float(coordinate)
+    except ValueError:
         return False
     else:
         return True
 
 
 def get_user_coordinate(coordinate):
-    return is_valid_coordinate(coordinate)and Decimal(coordinate) or \
-          get_user_coordinate(input('Wrong format. Try again:'))
+    return is_valid_coordinate(coordinate)and float(coordinate) or (
+        get_user_coordinate(input('Wrong format. Try again:')))
+
+
+def get_bar_name(bar):
+    return bar['properties']['Attributes']['Name']
+
+
+def get_bar_seats_number(bar):
+    return bar['properties']['Attributes']['SeatsCount']
 
 
 def main():
@@ -60,18 +66,13 @@ def main():
         biggest_bar = get_biggest_bar(loaded_bars)
         smallest_bar = get_smallest_bar(loaded_bars)
 
-        print('\nThe closest bar is "',
-              closest_bar['properties']['Attributes']['Name'], '".', sep='')
+        print('\nThe closest bar is "', get_bar_name(closest_bar), '".', sep='')
 
-        print('The biggest bar is "',
-              biggest_bar['properties']['Attributes']['Name'], '". It has ',
-              biggest_bar['properties']['Attributes']['SeatsCount'], ' seats.',
-              sep='')
+        print('The biggest bar is "', get_bar_name(biggest_bar), '". It has ',
+              get_bar_seats_number(biggest_bar), ' seats.', sep='')
 
-        print('The smallest bar is "',
-              smallest_bar['properties']['Attributes']['Name'], '". It has ',
-              smallest_bar['properties']['Attributes']['SeatsCount'], ' seats.',
-              sep='')
+        print('The smallest bar is "', get_bar_name(smallest_bar), '". It has ',
+              get_bar_seats_number(smallest_bar), ' seats.', sep='')
 
 
 if __name__ == '__main__':
