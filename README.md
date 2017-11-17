@@ -7,12 +7,11 @@ Also you need to install geopy module:
 ```
 pip install geopy
 ```
-Do not forget to place bars.json in the same directory that bars.py has.
 
 # How to use
 Run the script:
 ```
-python bars.py
+python bars.py path_to_file.json
 ```
 
 Input your coordinates:
@@ -25,9 +24,9 @@ Input your longitude:
 
 Catch your result:
 ```
-The closest bar in 0.187 kilometers.
-The biggest bar is "Спорт бар «Красная машина»".
-The lowest bar is "БАР. СОКИ".
+The closest bar is "Mad Men Bar".
+The biggest bar is "Спорт бар «Красная машина»". It has 450 seats.
+The smallest bar is "БАР. СОКИ". It has 0 seats.
 ```
 
 # Project Goals
