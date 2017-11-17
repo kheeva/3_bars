@@ -4,7 +4,7 @@ import json
 import geopy.distance
 
 
-def load_data(file_path):
+def load_json_data(file_path):
     with open(file_path, 'r', encoding='utf8') as json_file:
         loaded_data = json.load(json_file)
     return loaded_data
@@ -45,7 +45,7 @@ def main():
         exit("Usage: python bars.py path_to_file.")
 
     try:
-        loaded_bars = load_data(sys.argv[1])
+        loaded_bars = load_json_data(sys.argv[1])
     except FileNotFoundError as error:
         exit(error)
     except json.JSONDecodeError as error:
