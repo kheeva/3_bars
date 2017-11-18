@@ -46,6 +46,14 @@ def get_bar_seats_number(bar):
     return bar['properties']['Attributes']['SeatsCount']
 
 
+def make_found_bars_dict(closest_bar, biggest_bar, smallest_bar):
+    return {
+        'closest': {'bar_name': get_bar_name(closest_bar)},
+        'biggest': {'bar_name': get_bar_name(biggest_bar)},
+        'smallest': {'bar_name': get_bar_name(smallest_bar)}
+    }
+
+
 def main():
     if len(sys.argv) != 2:
         exit("Usage: python bars.py path_to_file.")
@@ -60,20 +68,16 @@ def main():
         user_latitude = get_user_coordinate(input('Input your latitude:'))
         user_longitude = get_user_coordinate(input('Input your longitude:'))
 
-        closest_bar = get_closest_bar(loaded_bars,
-                                      user_latitude,
-                                      user_longitude)
-        biggest_bar = get_biggest_bar(loaded_bars)
-        smallest_bar = get_smallest_bar(loaded_bars)
+        found_bars = make_found_bars_dict(get_closest_bar(
+                                        loaded_bars,
+                                        user_latitude,
+                                        user_longitude),
+                                        get_biggest_bar(loaded_bars),
+                                        get_smallest_bar(loaded_bars))
 
-        print('\nThe closest bar is "', get_bar_name(closest_bar), '".', sep='')
-
-        print('The biggest bar is "', get_bar_name(biggest_bar), '". It has ',
-              get_bar_seats_number(biggest_bar), ' seats.', sep='')
-
-        print('The smallest bar is "', get_bar_name(smallest_bar), '". It has ',
-              get_bar_seats_number(smallest_bar), ' seats.', sep='')
-
+        for found_bar in found_bars:
+            print('The ', found_bar, ' bar is "',
+                  found_bars[found_bar]['bar_name'], '".', sep='')
 
 if __name__ == '__main__':
     main()
