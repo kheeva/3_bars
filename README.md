@@ -25,8 +25,8 @@ Input your longitude:
 Catch your result:
 ```
 The closest bar is "Mad Men Bar".
-The biggest bar is "Спорт бар «Красная машина»". It has 450 seats.
-The smallest bar is "БАР. СОКИ". It has 0 seats.
+The biggest bar is "Спорт бар «Красная машина»".
+The smallest bar is "БАР. СОКИ".
 ```
 
 # Project Goals
